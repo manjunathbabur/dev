@@ -6,6 +6,8 @@ pipeline {
         SNOWFLAKE_PASSWORD = credentials('SNOWFLAKE_PASSWORD')  // Jenkins credential for Snowflake password
         SNOWFLAKE_ROLE = 'ACCOUNTADMIN'
         SNOWFLAKE_WAREHOUSE = 'POC_ITIM_PERIASAMY'
+        SNOWSQL_CONFIG_FILE = 'C:\\mala1\\<YourUsername>\\.snowsql\\config'
+        
     }
     stages {
         stage('Checkout Code') {
@@ -19,12 +21,12 @@ pipeline {
                 bat '"C:\\Program Files\\Python313\\python.exe" utils\\convert_ipynb_to_sql.py'
             }
         }
-        stage('Debug SnowSQL Command') {
+        stage('Debug Environment') {
     steps {
         bat '''
-        for %%f in (notebooks\\*.sql) do (
-            echo "PUT file://%%~dpnxf @prod_notebook_stage AUTO_COMPRESS = TRUE;"
-        )
+        dir notebooks\\
+        echo SNOWSQL_CONFIG_FILE=%SNOWSQL_CONFIG_FILE%
+        echo PATH=%PATH%
         '''
     }
 }
