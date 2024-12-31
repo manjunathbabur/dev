@@ -2,28 +2,9 @@ pipeline {
     agent any
     environment {
         SNOWFLAKE_ACCOUNT = 'mg05545.eu-west-1'
-        SNOWFLAKE_USER = credentials('SNOWFLAKE_USER')  // Jenkins credential for Snowflake username
-        SNOWFLAKE_PASSWORD = credentials('SNOWFLAKE_PASSWORD')  // Jenkins credential for Snowflake password
-        SNOWFLAKE_ROLE = 'ACCOUNTADMIN'
-        SNOWFLAKE_WAREHOUSE = 'POC_ITIM_PERIASAMY'
-        SNOWSQL_CONFIG_FILE = 'C:\\mala1\\<YourUsername>\\.snowsql\\config'
-        
+        SNOWFLAKE_USER = credentials('SNOWFLAKE_USER')  // Snowflake username
+        SNOWFLAKE_PASSWORD = credentials('SNOWFLAKE_PASSWORD')  // Snowflake password
     }
-    stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/manjunathbabur/dev.git'
-            }
-        }
-        stage('Convert Notebooks') {
-            steps {
-                // Convert .ipynb files to .sql
-                bat '"C:\\Program Files\\Python313\\python.exe" utils\\convert_ipynb_to_sql.py'
-            }
-        }
-		}
-       
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -40,10 +21,9 @@ pipeline {
             }
         }
     }
-    
     post {
         success {
-            echo 'Deployment Successful: SQL files uploaded to Snowflake stage!'
+            echo 'Deployment Successful: All SQL files uploaded to Snowflake stage!'
         }
         failure {
             echo 'Deployment Failed: Check the logs for details.'
