@@ -16,7 +16,7 @@ pipeline {
         stage('Convert Notebooks') {
             steps {
                 // Convert .ipynb files to .sql
-                sh 'python utils/convert_ipynb_to_sql.py'
+                bat 'python utils/convert_ipynb_to_sql.py'
             }
         }
         stage('Deploy SQL Files to Snowflake') {
