@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        SNOWFLAKE_ACCOUNT = 'mg05545.eu-west-1.snowflakecomputing.com'
+        SNOWFLAKE_ACCOUNT = 'mg05545.eu-west-1'
         SNOWFLAKE_USER = credentials('SNOWFLAKE_USER')  // Jenkins credential for Snowflake username
         SNOWFLAKE_PASSWORD = credentials('SNOWFLAKE_PASSWORD')  // Jenkins credential for Snowflake password
         SNOWFLAKE_ROLE = 'ACCOUNTADMIN'
