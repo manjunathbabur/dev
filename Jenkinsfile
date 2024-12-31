@@ -22,15 +22,7 @@ pipeline {
             }
         }
 		}
-        stage('Debug Environment') {
-    steps {
-        bat '''
-        dir notebooks\\
-        echo SNOWSQL_CONFIG_FILE=%SNOWSQL_CONFIG_FILE%
-        echo PATH=%PATH%
-        '''
-    }
-}
+       
 
     stages {
         stage('Checkout Code') {
