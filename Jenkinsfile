@@ -21,6 +21,7 @@ pipeline {
                 bat '"C:\\Program Files\\Python313\\python.exe" utils\\convert_ipynb_to_sql.py'
             }
         }
+		}
         stage('Debug Environment') {
     steps {
         bat '''
@@ -47,7 +48,7 @@ pipeline {
             }
         }
     }
-    }
+    
     post {
         success {
             echo 'Deployment Successful: SQL files uploaded to Snowflake stage!'
