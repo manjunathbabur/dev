@@ -23,8 +23,8 @@ pipeline {
             steps {
                 // Upload all SQL files to Snowflake stage
                 bat '''
-                for %f in (notebooks\\*.sql) do (
-                    snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -r %SNOWFLAKE_ROLE% -w %SNOWFLAKE_WAREHOUSE% -q "PUT file://%cd%\\%f @prod_notebook_stage AUTO_COMPRESS = TRUE;"
+                for %%f in (notebooks\\*.sql) do (
+                    snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -r %SNOWFLAKE_ROLE% -w %SNOWFLAKE_WAREHOUSE% -q "PUT file://%%~dpnxf @prod_notebook_stage AUTO_COMPRESS = TRUE;"
                 )
                 '''
             }
