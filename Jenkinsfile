@@ -19,6 +19,16 @@ pipeline {
                 bat '"C:\\Program Files\\Python313\\python.exe" utils\\convert_ipynb_to_sql.py'
             }
         }
+        stage('Debug SnowSQL Command') {
+    steps {
+        bat '''
+        for %%f in (notebooks\\*.sql) do (
+            echo "PUT file://%%~dpnxf @prod_notebook_stage AUTO_COMPRESS = TRUE;"
+        )
+        '''
+    }
+}
+
         stage('Deploy SQL Files to Snowflake') {
             steps {
                 // Upload all SQL files to Snowflake stage
@@ -30,16 +40,6 @@ pipeline {
 
             }
         }
-        stage('Debug SnowSQL Command') {
-    steps {
-        bat '''
-        for %%f in (notebooks\\*.sql) do (
-            echo "PUT file://\"%%~dpnxf\" @prod_notebook_stage AUTO_COMPRESS = TRUE;"
-        )
-        '''
-    }
-}
-
     }
     post {
         success {
