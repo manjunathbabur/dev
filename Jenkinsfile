@@ -22,14 +22,24 @@ pipeline {
         stage('Deploy SQL Files to Snowflake') {
             steps {
                 // Upload all SQL files to Snowflake stage
-                bat '''
-              for %%f in (notebooks\\*.sql) do (
-                  "C:\\Program Files\\SnowSQL\\bin\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -r %SNOWFLAKE_ROLE% -w %SNOWFLAKE_WAREHOUSE% -q "PUT file://%%~dpnxf @prod_notebook_stage AUTO_COMPRESS = TRUE;"
-                      )
-                      '''
+                 bat '''
+                 for %%f in (notebooks\\*.sql) do (
+                 "C:\\Program Files\\SnowSQL\\bin\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -r %SNOWFLAKE_ROLE% -w %SNOWFLAKE_WAREHOUSE% -q "PUT file://\"%%~dpnxf\" @prod_notebook_stage AUTO_COMPRESS = TRUE;"
+             )
+               '''
 
             }
         }
+        stage('Debug SnowSQL Command') {
+    steps {
+        bat '''
+        for %%f in (notebooks\\*.sql) do (
+            echo "PUT file://\"%%~dpnxf\" @prod_notebook_stage AUTO_COMPRESS = TRUE;"
+        )
+        '''
+    }
+}
+
     }
     post {
         success {
