@@ -39,11 +39,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'SNOWFLAKE_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
                     echo 'Uploading SQL files to Snowflake stage...'
                     bat '''
-                    for %%f in (notebooks\\*.sql) do (
-                        "C:\\Program Files\\SnowSQL\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -q ^
-                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
-                    )
-                    '''
+for %%f in (notebooks\\*.sql) do (
+    "C:\\Program Files\\SnowSQL\\snowsql.exe" -q ^
+    "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+)
+'''
                 }
             }
         }
