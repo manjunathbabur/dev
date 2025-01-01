@@ -1,28 +1,24 @@
-import json
-import os
+import sys
+import nbformat
 
-def convert_ipynb_to_sql(notebook_path, output_path):
-    with open(notebook_path, 'r', encoding='utf-8') as f:
-        notebook = json.load(f)
+def convert_notebook_to_sql(ipynb_path, sql_path):
+    with open(ipynb_path, 'r', encoding='utf-8') as ipynb_file:
+        notebook = nbformat.read(ipynb_file, as_version=4)
+    
+    sql_commands = []
+    for cell in notebook['cells']:
+        if cell['cell_type'] == 'code':
+            sql_commands.append(cell['source'])
 
-    sql_statements = []
-    for cell in notebook.get('cells', []):
-        if cell.get('cell_type') == 'code':
-            source = ''.join(cell.get('source', []))
-            if source.strip().lower().startswith(('select', 'insert', 'update', 'delete', 'create', 'drop')):
-                sql_statements.append(source)
-
-    if sql_statements:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write('\n\n'.join(sql_statements))
-
-def main():
-    notebooks_dir = './notebooks'
-    for file_name in os.listdir(notebooks_dir):
-        if file_name.endswith('.ipynb'):
-            notebook_path = os.path.join(notebooks_dir, file_name)
-            output_path = os.path.join(notebooks_dir, file_name.replace('.ipynb', '.sql'))
-            convert_ipynb_to_sql(notebook_path, output_path)
+    with open(sql_path, 'w', encoding='utf-8') as sql_file:
+        sql_file.write('\n\n'.join(sql_commands))
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 3:
+        print("Usage: python convert_ipynb_to_sql.py <input.ipynb> <output.sql>")
+        sys.exit(1)
+
+    ipynb_path = sys.argv[1]
+    sql_path = sys.argv[2]
+    convert_notebook_to_sql(ipynb_path, sql_path)
+    print(f"Converted {ipynb_path} to {sql_path}")
