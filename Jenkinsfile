@@ -36,7 +36,7 @@ pipeline {
 
   stage('Deploy to Snowflake') {
             steps {
-                withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
+                withCredentials([string(credentialsId: 'SNOWFLAKE_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
                     echo 'Uploading SQL files to Snowflake stage...'
                     bat '''
                     for %%f in (notebooks\\*.sql) do (
