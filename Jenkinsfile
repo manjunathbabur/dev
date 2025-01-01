@@ -27,10 +27,13 @@ pipeline {
             steps {
                 echo 'Converting .ipynb files to .sql...'
                 script {
-                    // Get a list of all .ipynb files in the notebooks directory
-                    def ipynbFiles = bat(script: 'dir /B notebooks\\*.ipynb', returnStdout: true).trim().split("\r\n")
+                    // Get the list of .ipynb files
+                    def ipynbFiles = bat(script: 'for %f in (notebooks\\*.ipynb) do echo %f', returnStdout: true).trim().split("\r\n")
+                    
+                    // Convert each .ipynb to .sql
                     for (file in ipynbFiles) {
-                        bat "python utils\\convert_ipynb_to_sql.py notebooks\\${file} notebooks\\${file.replace('.ipynb', '.sql')}"
+                        def cleanFile = file.trim()
+                        bat "python utils\\convert_ipynb_to_sql.py ${WORKSPACE}\\${cleanFile} ${WORKSPACE}\\${cleanFile.replace('.ipynb', '.sql')}"
                     }
                 }
             }
@@ -40,12 +43,15 @@ pipeline {
             steps {
                 echo 'Uploading SQL files to Snowflake stage...'
                 script {
-                    // Get a list of all .sql files in the notebooks directory
-                    def sqlFiles = bat(script: 'dir /B notebooks\\*.sql', returnStdout: true).trim().split("\r\n")
+                    // Get the list of .sql files
+                    def sqlFiles = bat(script: 'for %f in (notebooks\\*.sql) do echo %f', returnStdout: true).trim().split("\r\n")
+                    
+                    // Upload each .sql file
                     for (file in sqlFiles) {
+                        def cleanFile = file.trim()
                         bat """
                         snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -q ^
-                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://${WORKSPACE}\\notebooks\\${file} %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://${WORKSPACE}\\${cleanFile} %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
                         """
                     }
                 }
