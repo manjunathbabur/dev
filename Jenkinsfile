@@ -26,29 +26,23 @@ pipeline {
         stage('Convert Notebooks') {
             steps {
                 echo 'Converting .ipynb files to .sql...'
-                script {
-                    // Use `for` to list .ipynb files and process them
-                    bat '''
-                    for %%f in (notebooks\\*.ipynb) do (
-                        python utils\\convert_ipynb_to_sql.py notebooks\\%%f notebooks\\%%~nf.sql
-                    )
-                    '''
-                }
+                bat '''
+                for %%f in (notebooks\\*.ipynb) do (
+                    python utils\\convert_ipynb_to_sql.py %%f notebooks\\%%~nf.sql
+                )
+                '''
             }
         }
 
         stage('Deploy to Snowflake') {
             steps {
                 echo 'Uploading SQL files to Snowflake stage...'
-                script {
-                    // Use `for` to list .sql files and upload them
-                    bat '''
-                    for %%f in (notebooks\\*.sql) do (
-                        snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -q ^
-                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\notebooks\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
-                    )
-                    '''
-                }
+                bat '''
+                for %%f in (notebooks\\*.sql) do (
+                    snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -q ^
+                    "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+                )
+                '''
             }
         }
     }
