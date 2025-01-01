@@ -34,8 +34,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Snowflake') {
-            stage('Deploy to Snowflake') {
+   stage('Deploy to Snowflake') {
             steps {
                 withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
                     echo 'Uploading SQL files to Snowflake stage...'
@@ -47,7 +46,6 @@ pipeline {
                     '''
                 }
             }
-        }
         }
     }
 
