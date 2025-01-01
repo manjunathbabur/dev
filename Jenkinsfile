@@ -9,6 +9,13 @@ pipeline {
     }
 
     stages {
+        stage('Setup Environment') {
+            steps {
+                echo 'Installing Python dependencies...'
+                bat 'pip install nbformat'
+            }
+        }
+
         stage('Clone Repository') {
             steps {
                 echo 'Cloning the Git repository...'
