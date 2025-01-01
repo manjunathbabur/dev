@@ -33,22 +33,25 @@ pipeline {
                 '''
             }
         }
-        stage('Debug Workspace') {
+        stage('Debug File Paths') {
     steps {
-        echo 'Workspace is:'
-        bat 'echo %WORKSPACE%'
-        bat 'dir %WORKSPACE%'
+        bat '''
+        echo Debugging file paths:
+        for %%f in (notebooks\\*.sql) do (
+            echo File: %WORKSPACE%\\notebooks\\%%f
+        )
+        '''
     }
 }
 
-   stage('Deploy to Snowflake') {
+    stage('Deploy to Snowflake') {
             steps {
                 withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
                     echo 'Uploading SQL files to Snowflake stage...'
                     bat '''
-                    for %%f in (%WORKSPACE%\\notebooks\\*.sql) do (
-                        "C:\\Program Files\\SnowSQL\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -q ^
-                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+                    for %%f in (notebooks\\*.sql) do (
+                        "C:\\Program Files\\SnowSQL\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -o config_file=%USERPROFILE%\\.snowsql\\config -q ^
+                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\notebooks\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
                     )
                     '''
                 }
