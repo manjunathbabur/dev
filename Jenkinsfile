@@ -1,32 +1,53 @@
 pipeline {
     agent any
+
     environment {
-        SNOWFLAKE_ACCOUNT = 'mg05545.eu-west-1'
-        SNOWFLAKE_USER = credentials('SNOWFLAKE_USER')  // Snowflake username
-        SNOWFLAKE_PASSWORD = credentials('SNOWFLAKE_PASSWORD')  // Snowflake password
+        // Snowflake credentials
+        SNOWFLAKE_ACCOUNT = "mg05545.eu-west-1"
+        SNOWFLAKE_USER = "MRAJAMANI"
+        SNOWFLAKE_STAGE = "@prod_notebook_stage"
     }
+
     stages {
-        stage('Checkout Code') {
+        stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/manjunathbabur/dev.git'
+                echo 'Cloning the Git repository...'
+                checkout scm
             }
         }
-        stage('Deploy SQL Files to Snowflake') {
+
+        stage('Convert Notebooks') {
             steps {
-                bat '''
-                for %%f in (notebooks\\*.sql) do (
-                    echo %SNOWFLAKE_PASSWORD% | "C:\\Program Files\\SnowSQL\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -q "PUT file://%%~dpnxf @prod_notebook_stage AUTO_COMPRESS = TRUE;"
-                )
-                '''
+                echo 'Converting .ipynb files to .sql...'
+                script {
+                    def ipynbFiles = bat(script: 'dir /B notebooks\\*.ipynb', returnStdout: true).trim().split("\r\n")
+                    for (file in ipynbFiles) {
+                        bat "python utils\\convert_ipynb_to_sql.py notebooks\\${file} notebooks\\${file.replace('.ipynb', '.sql')}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Snowflake') {
+            steps {
+                echo 'Uploading SQL files to Snowflake stage...'
+                script {
+                    def sqlFiles = bat(script: 'dir /B notebooks\\*.sql', returnStdout: true).trim().split("\r\n")
+                    for (file in sqlFiles) {
+                        bat """
+                        snowsql -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -q ^
+                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://${WORKSPACE}\\notebooks\\${file} %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+                        """
+                    }
+                }
             }
         }
     }
+
     post {
-        success {
-            echo 'Deployment Successful: All SQL files uploaded to Snowflake stage!'
-        }
-        failure {
-            echo 'Deployment Failed: Check the logs for details.'
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
         }
     }
 }
