@@ -43,7 +43,9 @@ pipeline {
     }
 }
 
-    stages {
+    
+    }
+	stages {
         stage('Deploy to Snowflake') {
             steps {
                 withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
@@ -57,7 +59,6 @@ pipeline {
                 }
             }
         }
-    }
     }
 
     post {
