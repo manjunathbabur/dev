@@ -28,13 +28,12 @@ pipeline {
                 echo 'Converting .ipynb files to .sql...'
                 bat '''
                 for %%f in (notebooks\\*.ipynb) do (
-                    python utils\\convert_ipynb_to_sql.py %%f notebooks\\%%~nf.sql
+                    python utils\\convert_ipynb_to_sql.py notebooks\\%%f notebooks\\%%~nf.sql
                 )
                 '''
             }
         }
 
-    stages {
         stage('Deploy to Snowflake') {
             steps {
                 withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
@@ -48,9 +47,6 @@ pipeline {
                 }
             }
         }
-    }
-
-
     }
 
     post {
