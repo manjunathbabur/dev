@@ -34,19 +34,22 @@ pipeline {
             }
         }
 
-  stage('Deploy to Snowflake') {
+    stages {
+        stage('Deploy to Snowflake') {
             steps {
-                withCredentials([string(credentialsId: 'SNOWFLAKE_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
+                withCredentials([string(credentialsId: 'SNOWSQL_PASSWORD', variable: 'SNOWFLAKE_PASSWORD')]) {
                     echo 'Uploading SQL files to Snowflake stage...'
                     bat '''
-for %%f in (notebooks\\*.sql) do (
-    "C:\\Program Files\\SnowSQL\\snowsql.exe" -o config_file=%WORKSPACE%\\.snowsql\\config -q ^
-    "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
-)
-'''
+                    for %%f in (notebooks\\*.sql) do (
+                        "C:\\Program Files\\SnowSQL\\snowsql.exe" -a %SNOWFLAKE_ACCOUNT% -u %SNOWFLAKE_USER% -p %SNOWFLAKE_PASSWORD% -o config_file=%USERPROFILE%\\.snowsql\\config -q ^
+                        "USE DATABASE POC_CICD_PROD; USE SCHEMA SH_PROD; PUT file://%WORKSPACE%\\%%f %SNOWFLAKE_STAGE% AUTO_COMPRESS = TRUE;"
+                    )
+                    '''
                 }
             }
         }
+    }
+
 
     }
 
