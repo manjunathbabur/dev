@@ -33,6 +33,13 @@ pipeline {
                 '''
             }
         }
+        stage('Debug Workspace') {
+    steps {
+        echo 'Workspace is:'
+        bat 'echo %WORKSPACE%'
+        bat 'dir %WORKSPACE%'
+    }
+}
 
    stage('Deploy to Snowflake') {
             steps {
